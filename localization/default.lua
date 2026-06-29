@@ -1894,7 +1894,8 @@ return {
                 name = "String Theory",
                 text = {
                     "{C:blue}Hand{} always counts as",
-                    "containing a {C:attention}Straight"
+                    "containing a {C:attention}Straight",
+                    "for Joker effects"
                 }
             },
             j_aij_jesters_privelege = {
@@ -4062,7 +4063,7 @@ return {
                 }
             },
             j_aij_sherrif = {
-                name = "Sherrif",
+                name = "Sheriff",
                 text = {
                     "First scored {C:attention}Wild Card{}",
                     "each hand earns {C:money}$#1#{}"
@@ -4810,7 +4811,7 @@ return {
                 name = "Historian",
                 text = {
                     "Adds {C:mult}Mult{} equal to",
-                    "{C:attention}#1#X{} the {C:money}Sell Value{} of",
+                    "{C:attention}x#1#{} the {C:money}Sell Value{} of",
                     "the last sold Joker",
                     "{C:inactive}(Currently {C:mult}+#2#{C:inactive} Mult)"
                 }
@@ -7240,12 +7241,6 @@ return {
                     '{C:attention}rightmost{} Joker',
                     "{C:inactive}(Cannot be{}",
                     "{C:inactive}eternal){}"
-                }
-            },
-            c_aij_maw = {
-                name = 'Maw',
-                text = {
-                    '',
                 }
             },
             c_aij_maw = {
