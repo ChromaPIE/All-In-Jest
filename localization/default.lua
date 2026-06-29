@@ -7242,8 +7242,8 @@ return {
                     "{C:inactive}eternal){}"
                 }
             },
-            c_aij_scopophobia = {
-                name = 'Scopophobia',
+            c_aij_maw = {
+                name = 'Maw',
                 text = {
                     '',
                 }
@@ -8026,8 +8026,8 @@ return {
                 name = 'Sphinx',
                 text = {
                     "Enhances {C:attention}#1#{} selected",
-                    "card into a",
-                    "{C:attention}#2#{}"
+                    "cards into",
+                    "{C:attention}#2#s{}"
                 }
             },
             c_aij_tamed_lion = {

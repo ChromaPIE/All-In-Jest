@@ -37,5 +37,4 @@ function SMODS.add_to_pool(prototype_obj, ...)
         return smods_add_to_pool_ref(prototype_obj, ...)
     end
 end
-
 return { name = {"Jokers"}, items = {fantasio} }
