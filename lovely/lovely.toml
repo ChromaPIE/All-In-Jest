@@ -702,7 +702,7 @@ SMODS.calculate_context({full_hand = G.play.cards, scoring_hand = fake_scoring_h
 '''
 match_indent = true
 
-# Royal Flush (1/5) + Corndog (1/1)
+# Royal Flush (1/4) + Corndog (1/1)
 # Add stats to the royal flush when its played
 # G.FUNCS.evaluate_play()
 [[patches]] 
@@ -733,7 +733,7 @@ end
 '''
 match_indent = true
 
-# Royal Flush (2/5)
+# Royal Flush (2/4)
 # Gives the Royal Flush chips and mult when played (instead of a straight flush)
 # G.FUNCS.evaluate_play()
 [[patches]] 
@@ -750,7 +750,7 @@ hand_chips = mod_chips(G.GAME.hands[calculated_text or text].chips)
 '''
 match_indent = true
 
-# Royal Flush (3/5)
+# Royal Flush (3/4)
 # Show the Royal Flush chips and mult when played (instead of a straight flush)
 # G.FUNCS.evaluate_play()
 [[patches]] 
@@ -767,7 +767,7 @@ update_hand_text({sound = G.GAME.current_round.current_hand.handname ~= disp_tex
 '''
 match_indent = true
 
-# Royal Flush (4/5)
+# Royal Flush (4/4)
 # Show the Royal Flush chips and mult when played (instead of a straight flush)
 # G.FUNCS.evaluate_play()
 [[patches]] 
@@ -781,7 +781,6 @@ payload = '''
 SMODS.displayed_hand = calculated_text or text
 '''
 match_indent = true
-
 
 #################################
     # PATCHES FOR NEW DECKS #
