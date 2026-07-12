@@ -8,10 +8,10 @@ local dendroglyph = {
             mult = 4
         }
     },
-    rarity = 2,
+    rarity = 1,
     pos = { x = 19, y = 12 },
     atlas = 'joker_atlas',
-    cost = 6,
+    cost = 4,
     unlocked = true,
     discovered = false,
     blueprint_compat = true,
@@ -21,7 +21,7 @@ local dendroglyph = {
         if G.deck then
             if #G.deck.cards > 0 then
                 for i = 1, #G.deck.cards do
-                    if G.deck.cards[i].config.center == G.P_CENTERS["m_aij_wood"] then
+                    if SMODS.has_enhancement(G.deck.cards[i], 'm_aij_wood') then
                         return true
                     end
                 end
