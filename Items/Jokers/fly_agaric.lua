@@ -1,19 +1,20 @@
 local fly_agaric = {
     object_type = "Joker",
-    order = 416,
+    order = 435,
     key = "fly_agaric",
     config = {
         extra = {
             
         }
     },
+    attributes = { 'retrigger', 'activated' },
     rarity = 2,
     pos = { x = 16, y = 20 },
     atlas = 'joker_atlas',
     cost = 6,
     unlocked = true,
     discovered = false,
-    blueprint_compat = false,
+    blueprint_compat = true,
     eternal_compat = false,
 
     loc_vars = function(self, info_queue, card)

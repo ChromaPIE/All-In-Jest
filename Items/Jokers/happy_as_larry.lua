@@ -1,6 +1,6 @@
 local happy_as_larry = {
     object_type = "Joker",
-    order = 537,
+    order = 556,
     key = "happy_as_larry",
     config = {
         extra = {
@@ -10,6 +10,7 @@ local happy_as_larry = {
             decrease_odds = 1
         }
     },
+    attributes = { 'xmult', 'chance', 'retrigger' },
     rarity = 2,
     pos = { x = 21, y = 25 },
     atlas = 'joker_atlas',
@@ -40,7 +41,7 @@ local happy_as_larry = {
                 }
             end
         end
-        if context.repetition_only or (context.retrigger_joker_check) then
+        if context.retrigger_joker_check and context.other_card == card then
             local retriggers = 0
             while SMODS.pseudorandom_probability(card, 'happy_as_larry'.. G.SEED, card.ability.extra.new_odds, card.ability.extra.odds) do
                 card.ability.extra.new_odds = card.ability.extra.new_odds - 1

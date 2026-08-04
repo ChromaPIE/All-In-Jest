@@ -1,12 +1,13 @@
 local the_treachery_of_jokers = {
     object_type = "Joker",
-    order = 390,
+    order = 409,
     key = "the_treachery_of_jokers",
     config = {
         extra = {
             xmult = 1.5
         }
     },
+    attributes = { 'xmult' },
     rarity = 2,
     pos = { x = 7, y = 16 },
     atlas = 'joker_atlas',
@@ -62,6 +63,18 @@ G.FUNCS.check_for_buy_space = function(card)
         card.ability.consumeable = nil
     end
     return ret
+end
+
+local ref_can_select_card = G.FUNCS.can_select_card
+G.FUNCS.can_select_card = function(e)
+    local card = e.config.ref_table
+    local card_limit = card.ability.card_limit - card.ability.extra_slots_used
+    if card.config.center.key == "j_aij_the_treachery_of_jokers" then
+        e.config.colour = G.C.GREEN
+        e.config.button = 'use_card'
+    else
+        ref_can_select_card(e)
+    end
 end
 
 -- Make advanced copier jokers that gain/lose treachery of jokers be moved to the correct card area

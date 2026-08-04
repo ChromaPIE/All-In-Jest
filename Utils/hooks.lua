@@ -59,6 +59,15 @@ if All_in_Jest.config.blue_stake_rework then
     },true)
 end
 
+SMODS.Sticker:take_ownership('pinned', { 
+    pos = { x = 4, y = 1 },
+    atlas = 'stickers_atlas',
+    inject = function(self)
+        SMODS.Sticker.inject(self)
+        G.shared_sticker_pinned = self.sticker_sprite
+    end,
+},true)
+
 -- [[ Overriding Deck Skins ]] --
 --G.FUNCS.change_collab = function(args)
 --  if args.cycle_config.rank_table.cycle_config.current_option == 1 then
@@ -234,6 +243,7 @@ function SMODS.has_any_suit(card)
     if card.config.aij_other_center and card.config.aij_other_center['center'] then
         if card.config.aij_other_center['center'].key == 'm_wild' or card.config.aij_other_center['center'].any_suit then return true end
     end
+    if All_in_Jest.get_inherent_effects(card, 'enhancement', nil, true).m_wild then return true end
     return has_any_suit_ref(card) or All_in_Jest.counts_as_all_suits(card)
 end
 
@@ -242,11 +252,32 @@ function SMODS.always_scores(card)
     if card.config.aij_other_center and card.config.aij_other_center['center'] then
         if card.config.aij_other_center['center'].key == 'm_stone' or card.config.aij_other_center['center'].always_scores then return true end
     end
+    if All_in_Jest.get_inherent_effects(card, 'enhancement', nil, true).m_stone then return true end
+    if card.ability and (card.ability.aij_always_scores or card.ability.aij_temp_always_scores) then 
+        card.ability.aij_temp_always_scores = nil
+        return true 
+    end
     return always_scores_ref(card)
+end
+
+local is_face_ref = Card.is_face
+function Card:is_face(from_boss)
+    if G.GAME.blind and G.GAME.blind.config.blind.key == 'bl_aij_the_real' and not G.GAME.blind.disabled then
+        if self.debuff and not from_boss then return end
+        local id = self:get_id()
+        local rank = SMODS.Ranks[self.base.value]
+        if not id then return end
+        if (id > 0 and rank and rank.face) then
+            return true
+        end
+        return
+    end
+    return is_face_ref(self, from_boss)
 end
 
 local has_no_suit_ref = SMODS.has_no_suit
 function SMODS.has_no_suit(card)
+    if SMODS.has_any_suit(card) then return false end
     if card.base.suit == nil then return true end
     if SMODS.has_enhancement(card, 'm_aij_canvas') then
         if (card.area == G.hand or card.area == G.play) and not card.debuff then
@@ -295,7 +326,9 @@ function SMODS.has_no_suit(card)
         if card.config.aij_other_center['center'].key == 'm_stone' or card.config.aij_other_center['center'].no_suit then no_suit = true end
         return no_suit and not any_suit
     end
-    return has_no_suit_ref(card)
+    if All_in_Jest.get_inherent_effects(card, 'enhancement', nil, true).m_wild then any_suit = true end
+    if All_in_Jest.get_inherent_effects(card, 'enhancement', nil, true).m_stone then no_suit = true end
+    return (no_suit or has_no_suit_ref(card)) and not any_suit
 end
 
 
@@ -368,10 +401,47 @@ function SMODS.has_no_rank(card)
             return true 
         end
     end
+    if All_in_Jest.get_inherent_effects(card, 'enhancement', nil, true).m_stone then
+        card.front_hidden = card:should_hide_front()
+        return true 
+    end
     if card.ability.numbertaker_rankless then return true end
     return has_no_rank_ref(card)
 end
 
+local get_chip_bonus_ref = Card.get_chip_bonus
+function Card:get_chip_bonus()
+    local chip_val = get_chip_bonus_ref(self)
+    if self.config.aij_other_center and self.config.aij_other_center['center'] and self.config.aij_other_center['ability'] then
+        chip_val = chip_val + (self.config.aij_other_center['ability'].bonus or 0)
+    end
+    return chip_val
+end
+
+local set_sell_value_ref = Card.set_sell_value
+function Card:set_sell_value()
+    set_sell_value_ref(self)
+    if self.aij_no_cost then
+        self.sell_cost = self.ability.extra_value or 0
+    end
+end
+
+-- For Bizco, taken from paperback
+local calculate_main_scoring_ref = SMODS.calculate_main_scoring
+function SMODS.calculate_main_scoring(context, scoring_hand)
+  calculate_main_scoring_ref(context, scoring_hand)
+  if context.cardarea == G.play or context.cardarea == 'unscored' then
+    SMODS.calculate_context {
+      all_in_jest = {
+        after_scoring_cards = true 
+      },
+      full_hand = G.play.cards,
+      scoring_hand = context.scoring_hand,
+      scoring_name = context.scoring_name,
+      poker_hands = context.poker_hands
+    }
+  end
+end
 local get_front_spriteinfo_ref = get_front_spriteinfo
 function get_front_spriteinfo(_front)
     if _front.card and _front.card.ability and _front.card.ability.numbertaker_rankless and _front.suit then
@@ -666,9 +736,77 @@ function ease_ante(mod)
         G.GAME.all_in_jest.unused_discards.ante = 0
         G.GAME.jest_kasperle_voucher_ante = false
     end
+    G.GAME.blacklight_should_flicker = true
+    check_for_unlock({type = 'ante_change', ante = G.GAME.round_resets.ante, ante_change = mod})
     
     local ref = ease_anteref(mod)
     return ref
+end
+
+local set_discover_talliesref = set_discover_tallies
+function set_discover_tallies()
+    set_discover_talliesref()
+    G.DISCOVER_TALLIES['gold_tags'] = {tally = 0, of = 0}
+    G.DISCOVER_TALLIES['aij_vouchers'] = {tally = 0, of = 0}
+    G.DISCOVER_TALLIES['aij_consumables'] = {tally = 0, of = 0}
+    for _, v in pairs(G.P_TAGS) do
+        if not v.no_collection then
+            if v.config and v.config.aij and v.config.aij.upgrade then
+                G.DISCOVER_TALLIES.gold_tags.of = G.DISCOVER_TALLIES.gold_tags.of+1
+                if v.discovered then 
+                    G.DISCOVER_TALLIES.gold_tags.tally = G.DISCOVER_TALLIES.gold_tags.tally+1
+                end
+            end
+        end
+    end
+    for _, v in pairs(G.P_CENTERS) do
+        if not v.omit and not v.no_collection then
+            if v.mod and v.mod.name == 'All in Jest' then
+                if v.set and v.consumeable then
+                    G.DISCOVER_TALLIES.aij_consumables.of = G.DISCOVER_TALLIES.aij_consumables.of+1
+                    if v.discovered then 
+                        G.DISCOVER_TALLIES.aij_consumables.tally = G.DISCOVER_TALLIES.aij_consumables.tally+1
+                    end
+                end
+                if v.set and v.set == 'Voucher' then
+                    G.DISCOVER_TALLIES.aij_vouchers.of = G.DISCOVER_TALLIES.aij_vouchers.of+1
+                    if v.discovered then 
+                        G.DISCOVER_TALLIES.aij_vouchers.tally = G.DISCOVER_TALLIES.aij_vouchers.tally+1
+                    end
+                end
+            end
+        end
+    end
+    if check_for_unlock then check_for_unlock({type = 'discover_aij'}) end
+end
+
+local set_profile_progressref = set_profile_progress
+function set_profile_progress()
+    set_profile_progressref()
+    local gold_stake = nil
+    for k, v in pairs(G.P_CENTER_POOLS.Stake) do
+        if v.key == 'stake_gold' then
+            gold_stake = k
+        end
+    end
+    G.PROGRESS['aij_joker_gold_stickers'] = {tally = 0, of = 0}
+    G.PROGRESS['aij_achievements'] = {tally = 0, of = 0}
+    for _, v in pairs(G.P_CENTERS) do
+        if v.set == 'Joker' and not v.no_collection and not v.omit and (v.mod and v.mod.name == 'All in Jest') then 
+            G.PROGRESS.aij_joker_gold_stickers.of = G.PROGRESS.aij_joker_gold_stickers.of + 1
+            if get_joker_win_sticker(v, true) >= gold_stake then
+                G.PROGRESS.aij_joker_gold_stickers.tally = G.PROGRESS.aij_joker_gold_stickers.tally + 1
+            end
+        end
+    end
+    for _, v in pairs(G.ACHIEVEMENTS) do
+        if v.mod and v.mod.name == 'All in Jest' then 
+            G.PROGRESS.aij_achievements.of = G.PROGRESS.aij_achievements.of + 1
+            if v.earned then
+                G.PROGRESS.aij_achievements.tally = G.PROGRESS.aij_achievements.tally + 1
+            end
+        end
+    end
 end
 
 SMODS.jest_Badge = {
@@ -746,6 +884,9 @@ SMODS.ConsumableType({
 
             if card.area and not card.area.config.collection then
                 if card.ability.consumeable.hand and card.ability.consumeable.grade then
+                    if card.ability.consumeable.grade == 'Retrograde' then
+                        card.ability.consumeable.hand = All_in_Jest.astral_hand_from_grade('Retrograde')
+                    end
                     info_queue[#info_queue+1] = {key = 'aij_astral_'..string.lower(card.ability.consumeable.grade), set = 'Other'}
                 end
                 
@@ -768,6 +909,15 @@ SMODS.ConsumableType({
         if not center.use then
             center.use = function(self, card, area, copier)
                 All_in_Jest.use_astral_card(card)
+                if G.aij_cur_astral_hand and G.aij_cur_astral_hand == card.ability.consumeable.hand and G.GAME.Astral_pins then
+                    if G.aij_astral_pin_area and #G.aij_astral_pin_area.cards > 0 then
+                        All_in_Jest.astral_visuals(card.ability.consumeable.hand, 'only_remove', All_in_Jest.old_colours or nil, true)      
+                        for _, v in pairs(G.aij_astral_pin_area.cards) do
+                            v:remove()
+                        end
+                    end
+                    All_in_Jest.astral_visuals(card.ability.consumeable.hand, 'no_remove')
+                end
             end
         end
         SMODS.ObjectType.inject_card(self, center)
@@ -848,6 +998,25 @@ All_in_Jest.Astral = SMODS.Tag:extend {
     end
 }
 
+local aij_ease_bg_blind_ref = ease_background_colour_blind
+function ease_background_colour_blind(state, blind_override)
+    All_in_Jest.old_colours = nil
+    aij_ease_bg_blind_ref(state, blind_override)
+end
+
+local aij_ease_bg_ref = ease_background_colour
+function ease_background_colour(args)
+    if All_in_Jest.old_colours == nil then
+        All_in_Jest.old_colours = {
+            special_colour = copy_table(args['special_colour']),
+            tertiary_colour = copy_table(args['tertiary_colour']),
+            new_colour = copy_table(args['new_colour']),
+            contrast = args.contrast or 1,
+        }
+    end
+    aij_ease_bg_ref(args)
+end
+
 local init_game_object_ref = Game.init_game_object
 function Game.init_game_object(self)
   local ret = init_game_object_ref(self)
@@ -888,6 +1057,7 @@ function SMODS.upgrade_poker_hands(args)
             level_up = args.level_up,
             instant = true,
             from = nil,
+            aij_level_with = true, -- Removes context call
         }
         aij_SMODS_upgrade_poker_hands_ref(new_args)
     end
@@ -939,8 +1109,12 @@ function All_in_Jest.update_frame(dt, k, obj, jkr)
                 end
             end
             if loc >= anim.frames then loc = anim.start_frame or 0 end
-            obj.pos.x = (anim.held_frame or loc)%(anim.frames_per_row or anim.frames)
-            obj.pos.y = math.floor((anim.held_frame or loc)/(anim.frames_per_row or anim.frames))
+            if obj.all_in_jest and obj.all_in_jest.animate_func then
+                obj.pos.x, obj.pos.y = obj.all_in_jest.animate_func(dt, anim, obj, loc, k)
+            else
+                obj.pos.x = (anim.held_frame or loc)%(anim.frames_per_row or anim.frames)
+                obj.pos.y = math.floor((anim.held_frame or loc)/(anim.frames_per_row or anim.frames))
+            end
             if obj.all_in_jest and obj.all_in_jest.layer_funcs and obj.all_in_jest.layer_funcs.pos and type(obj.all_in_jest.layer_funcs.pos) == "function" then
                 obj.all_in_jest.layer_funcs.pos(anim, obj, loc)
             end
@@ -1042,12 +1216,30 @@ end
 local gameupdateref = Game.update
 function Game:update(dt)
     local ref = gameupdateref(self, dt)
+    if G.GAME.Astral_pins and G.hand and #G.hand.highlighted <= 0 and G.aij_cur_astral_hand ~= nil and G.play and #G.play.cards <= 0 and G.STATE ~= G.STATES.HAND_PLAYED and G.STATE ~= G.STATES.DRAW_TO_HAND then
+        All_in_Jest.astral_visuals(text, 'only_remove', All_in_Jest.old_colours or nil, true)      
+        G.aij_cur_astral_hand = nil
+        if G.aij_astral_pin_area then
+            for _, v in pairs(G.aij_astral_pin_area.cards) do
+                v:remove()
+            end
+        end
+    end
     for k, v in pairs(G.GAME.all_in_jest.AIJAnimated) do
         All_in_Jest.update_frame(dt, k, G.P_CENTERS[k])
         if not G.P_CENTERS[k] then
             for n, val in pairs(G.P_CENTER_POOLS.Enhanced) do
                 if G.P_CENTER_POOLS.Enhanced[n].key == k then
                     All_in_Jest.update_frame(dt, k, G.P_CENTER_POOLS.Enhanced[n])
+                end
+            end
+        end
+    end
+    if G.GAME.round_resets.blind_tags then
+        for k, v in pairs(G.GAME.round_resets.blind_tags) do
+            if G.GAME.all_in_jest.blind_tags[k] and G.GAME.all_in_jest.blind_tags[k][1] then
+                if G.GAME.round_resets.blind_tags[k] ~= G.GAME.all_in_jest.blind_tags[k][1] then
+                    G.GAME.round_resets.blind_tags[k] = G.GAME.all_in_jest.blind_tags[k][1]
                 end
             end
         end
@@ -1163,6 +1355,10 @@ function Card:save()
 
     if self.aij_inherent_effects then
         saveTable.aij_inherent_effects = self.aij_inherent_effects
+    end
+
+    if self.aij_seal_edition then
+        saveTable.aij_seal_edition = self.aij_seal_edition
     end
 
     return saveTable
@@ -1388,7 +1584,7 @@ function create_UIBox_hand_tip(handname)
 
     -- Show applied astral pins
     local astrals = 0
-    if G.GAME.Astral_pins[handname] then
+    if G.GAME and G.GAME.Astral_pins and G.GAME.Astral_pins[handname] then
         for _, _ in pairs(G.GAME.Astral_pins[handname]) do
             astrals = astrals + 1
         end
@@ -1449,4 +1645,19 @@ SMODS.collection_pool = function(_base_pool)
     end
 
     return pool
+end
+
+local set_joker_win_ref = set_joker_win
+function set_joker_win()
+  for k, v in pairs(G.consumeables.cards) do
+    if v.config.center_key and v.ability.set == 'Joker' then
+      G.PROFILES[G.SETTINGS.profile].joker_usage[v.config.center_key] = G.PROFILES[G.SETTINGS.profile].joker_usage[v.config.center_key] or {count = 1, order = v.config.center.order, wins = {}, losses = {}, wins_by_key = {}, losses_by_key = {}}
+      if G.PROFILES[G.SETTINGS.profile].joker_usage[v.config.center_key] then
+        G.PROFILES[G.SETTINGS.profile].joker_usage[v.config.center_key].wins = G.PROFILES[G.SETTINGS.profile].joker_usage[v.config.center_key].wins or {}
+        G.PROFILES[G.SETTINGS.profile].joker_usage[v.config.center_key].wins[G.GAME.stake] = (G.PROFILES[G.SETTINGS.profile].joker_usage[v.config.center_key].wins[G.GAME.stake] or 0) + 1
+        G.PROFILES[G.SETTINGS.profile].joker_usage[v.config.center_key].wins_by_key[SMODS.stake_from_index(G.GAME.stake)] = (G.PROFILES[G.SETTINGS.profile].joker_usage[v.config.center_key].wins_by_key[SMODS.stake_from_index(G.GAME.stake)] or 0) + 1
+      end
+    end
+  end
+  set_joker_win_ref()
 end

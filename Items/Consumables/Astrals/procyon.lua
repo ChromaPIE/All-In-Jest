@@ -9,7 +9,7 @@ local procyon = {
 	unlocked = true,
 	discovered = false,
     order = 5,
-	config = { hand = nil, grade = '', pin = 'Procyon', extra = {sell_val = 3}},
+	config = { hand = nil, grade = '', pin = 'Procyon', extra = {sell_val = 2}},
     loc_vars = function(self, info_queue, card)
         -- Rest of loc_vars is defined in the ConsumableType in hooks.lua
 		return {
@@ -51,17 +51,26 @@ local procyon_pin = {
     end,
 
     calculate = function(self, card, context)
-        if context.after and not context.repetition then
+        if context.before and not context.repetition then
             if #G.jokers.cards > 0 then
                 local joker = pseudorandom_element(G.jokers.cards, pseudoseed('procyon'))
                 joker.ability.extra_value = joker.ability.extra_value + card.ability.extra.sell_val --Not sure if this should use scale_card
                 joker:set_cost()
+                --  G.E_MANAGER:add_event(Event({
+                --     func = function()
+                --         card_eval_status_text(joker, 'extra', nil, nil, nil, {
+                --             message = localize('k_val_up'), 
+                --             colour = G.C.MONEY
+                --         })
+                --         return true
+                --     end
+                -- })) 
                 return {
-                    {message = localize('k_val_up'), colour = G.C.MONEY}
+                    message = localize('k_val_up'), colour = G.C.MONEY, message_card = joker
                 }
             else
                 return {
-                    {message = localize('k_nope_ex'), colour = G.C.SECONDARY_SET.Tarot}
+                    message = localize('k_nope_ex'), colour = G.C.SECONDARY_SET.Tarot
                 }
             end
         end

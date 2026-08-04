@@ -1,6 +1,6 @@
 local requiem = {
     object_type = "Joker",
-    order = 543,
+    order = 562,
     key = "requiem",
     
     config = {
@@ -8,6 +8,7 @@ local requiem = {
             
         }
     },
+    attributes = { 'economy', 'joker' },
     rarity = 3,
     pos = { x = 1, y = 26 },
     atlas = 'joker_atlas',
@@ -16,6 +17,7 @@ local requiem = {
     discovered = false,
     blueprint_compat = false,
     eternal_compat = true,
+    pixel_size = { w = 59, h = 93 },
     add_to_deck = function(self, card, from_debuff)
         G.E_MANAGER:add_event(Event({
             func = function()

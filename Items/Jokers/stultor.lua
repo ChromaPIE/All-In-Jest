@@ -1,6 +1,6 @@
 local stultor = {
     object_type = "Joker",
-    order = 181,
+    order = 184,
     lite = true,
     key = "stultor",
     config = {
@@ -8,6 +8,7 @@ local stultor = {
           free_rerolls = 1
       }
     },
+    attributes = { 'boss_blind' },
     rarity = 2,
     pos = { x = 24, y = 6},
     atlas = 'joker_atlas',

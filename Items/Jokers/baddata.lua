@@ -1,14 +1,14 @@
 local baddata = {
     object_type = "Joker",
-    order = 412,
+    order = 432,
     key = "baddata",
     rarity = 2,
     pos = { x = 15, y = 17},
     soul_pos = { x = 6, y = 18},
     all_in_jest = {
 		soul_layers = {
-        aij_floating_sprite_1 = {pos = {x = 15, y = 19}, moving = false,}
-    },
+			aij_floating_sprite_1 = {pos = {x = 15, y = 19}, moving = false,}
+		},
 		layer_funcs = {
 			pos = function(anim, obj, loc)
 				-- Runs every frame
@@ -110,6 +110,7 @@ local baddata = {
 			effect = ''
 		}
     },
+	attributes = { 'mult', 'chips', 'xmult', 'xchips', 'economy' },
   
     loc_vars = function(self, info_queue, card)
 		local effects = {
@@ -139,13 +140,13 @@ local baddata = {
 		elseif card.ability.extra.effect == 'xchips' then
 			prefix = ' X'
 			colour = G.C.CHIPS
-			for i = 1.0, card.ability.extra.num1 do
+			for i = 10, card.ability.extra.num1 do
 				r_mults[#r_mults+1] = tostring(i * 0.1)
 			end
 			loc_mult = (localize('k_aij_youve_got_mail_chip_text', 'extra_joker_dictionary'))..' '
 		elseif card.ability.extra.effect == 'Xmult' then
 			prefix = ' X'
-			for i = 1.0, card.ability.extra.num1 do
+			for i = 10, card.ability.extra.num1 do
 				r_mults[#r_mults+1] = tostring(i * 0.1)
 			end
 		elseif card.ability.extra.effect == 'dollars' then
@@ -186,7 +187,17 @@ local baddata = {
             }
 			G.E_MANAGER:add_event(Event({
                 func = function()
-                    card.ability.extra.effect = pseudorandom_element(effects, pseudoseed('baddata'))
+                    card.ability.extra.effect = ''
+					local effects = {
+						'mult',
+						'chips',
+						'xchips',
+						'Xmult',
+						'dollars'
+					}
+					if card.ability.extra.effect == '' then
+						card.ability.extra.effect =  pseudorandom_element(effects, pseudoseed('baddata'))
+					end
                     return true
                 end
             }))

@@ -6,6 +6,7 @@ local biancolelli = {
     config = {
       
     },
+    attributes = { 'balance' },
     rarity = 4,
 	unlock_condition = {hidden = true},
     pos = { x = 9, y = 0},
@@ -13,7 +14,7 @@ local biancolelli = {
     cost = 20,
     unlocked = false,
     discovered = false,
-    blueprint_compat = false,
+    blueprint_compat = true,
     eternal_compat = true,
     soul_pos = { x = 9, y = 1},
   

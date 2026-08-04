@@ -615,6 +615,9 @@ G.FUNCS.jest_astral_replace = function(e)
     local area = e.config.data[1]
     local data = e.config.data[2]
     All_in_Jest.create_astral_pin(data.consumable_card, data.astral_index)
+    if G.aij_cur_astral_hand and G.aij_cur_astral_hand == data.consumable_card.ability.consumeable.hand then
+        All_in_Jest.astral_visuals(data.consumable_card.ability.consumeable.hand, 'no_remove')
+    end
     G.SETTINGS.paused = false
     if G.OVERLAY_MENU ~= nil then
         G.OVERLAY_MENU:remove()
@@ -690,6 +693,22 @@ G.FUNCS.All_in_Jest_use_active_ability_button = function(e, mute, nosave)
     SMODS.calculate_context({all_in_jest = {using_ability = true, card = card, area = card.from_area}})
 end
 
+G.FUNCS.aij_coconut_delete = function(e, mute, nosave)
+    stop_use()
+    
+    local card = e.config.ref_table
+    local area = card.area
+
+    card:All_in_Jest_start_dissolve()
+    G.E_MANAGER:add_event(Event({
+        func = (function()
+            error("Coconut.joker not found")
+            return true
+        end)
+    }))
+end
+
+
 G.FUNCS.All_in_Jest_select_tag = function(e)
     local number = e.config.ref_table[1]
     local tag = e.config.ref_table[2]
@@ -717,4 +736,17 @@ G.FUNCS.All_in_Jest_select_tag = function(e)
             G.GAME.round_resets.blind_tags[G.GAME.blind_on_deck] = G.GAME.all_in_jest.blind_tags[G.GAME.blind_on_deck][number]
         end
     end
+end
+
+G.FUNCS.aij_draw_from_discard_to_deck = function(e)
+    G.E_MANAGER:add_event(Event({
+        trigger = 'immediate',
+        func = function()
+            local deck_count = #G.deck.cards
+            for i=1, deck_count do --draw cards from deck
+                draw_card(G.deck, G.discard, i*100/deck_count,'up', nil ,nil, 0.005, i%2==0, nil, math.max((21-i)/20,0.7))
+            end
+            return true
+        end
+    }))
 end

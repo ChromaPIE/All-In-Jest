@@ -1,6 +1,6 @@
 local mammon = {
     object_type = "Joker",
-    order = 560,
+    order = 569,
     key = "mammon",
     config = {
         extra = {
@@ -8,6 +8,7 @@ local mammon = {
             payout_increase_total = 0,
         }
     },
+    attributes = { 'economy', 'scaling', 'enhancements' },
     rarity = 2,
     pos = { x = 7, y = 26 },
     atlas = 'joker_atlas',
@@ -67,7 +68,11 @@ local mammon = {
 }
 SMODS.Enhancement:take_ownership('gold', { 
     update = function(self, card, dt)
-        card.ability.h_dollars = (G.GAME.all_in_jest.gold_card_amt or 3) 
+        local base_amt = (G.GAME and G.GAME.all_in_jest and G.GAME.all_in_jest.gold_card_amt) or 3
+        
+        local factor = (card.ability and card.ability.jest_charged_applied and card.ability.jest_charged_applied.factor) or 1
+        
+        card.ability.h_dollars = math.ceil(base_amt * factor)
     end,
 }, true)
 return { name = {"Jokers"}, items = {mammon} }

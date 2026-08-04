@@ -9,7 +9,7 @@ SMODS.Sound {
 
 local youve_got_mail = {
     object_type = "Joker",
-    order = 361,
+    order = 380,
     key = "youve_got_mail",
     config = {
         extra = {
@@ -27,6 +27,7 @@ local youve_got_mail = {
             }
         }
     },
+    attributes = { 'generation', 'joker', 'editions', 'negative', 'mult', 'chips', 'xmult', 'economy' },
     rarity = 3,
     pos = { x = 8, y = 14},
     atlas = 'joker_atlas',
@@ -96,7 +97,8 @@ local youve_got_mail = {
             G.jokers:emplace(temp_card)
             temp_card:set_edition(edition, true)
             temp_card:start_materialize()
-            temp_card.ability.extra_value = (temp_card.ability.extra_value or 0) - temp_card.sell_cost
+            temp_card.aij_no_cost = true
+            temp_card.ability.extra_value = 0
             temp_card:set_cost()
             return {
                 message_card = temp_card,

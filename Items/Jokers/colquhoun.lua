@@ -10,6 +10,7 @@ local colquhoun = {
             dollar_mod = 1
         }
     },
+    attributes = { 'economy', 'scaling' },
     rarity = 4,
     unlock_condition = { hidden = true },
     pos = { x = 8, y = 2 },
@@ -19,6 +20,7 @@ local colquhoun = {
     discovered = false,
     blueprint_compat = true,
     eternal_compat = true,
+    perishable_compat = false,
     soul_pos = { x = 8, y = 3 },
 
     loc_vars = function(self, info_queue, card)

@@ -1,11 +1,12 @@
 local toothy_joker = {
     object_type = "Joker",
-    order = 213,
+    order = 219,
 
     key = "toothy_joker",
     config = {
       extra = { chips = 25 }
     },
+    attributes = { 'chips', 'scaling', 'reset', 'tarot', 'consumable' },
     rarity = 1,
     pos = { x = 2, y = 8},
     atlas = 'joker_atlas',
@@ -50,10 +51,10 @@ local toothy_joker = {
 
 local ease_ante_ref = ease_ante
 function ease_ante(mod)
-    ret_value = ease_ante_ref(mod)
     if SMODS.ante_end then
         G.GAME.jest_toothy_joker_tarots = 0
     end
+    ret_value = ease_ante_ref(mod)
     return ret_value
 end
 

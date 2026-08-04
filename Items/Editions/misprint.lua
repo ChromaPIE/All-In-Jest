@@ -14,7 +14,7 @@ local misprint_shader = {
 }
 SMODS.Sound {
   key = 'misprint',
-  path = 'glimmer.mp3'
+  path = 'misprinted.mp3'
 }
 local misprint = {
     object_type = "Edition",
@@ -28,6 +28,7 @@ local misprint = {
     config = { min_mult = 50, max_mult = 300, mult = 1, prevmult = "1" },
     disable_base_shader = true,
     loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {set = 'Other', key = 'misprinted_credits_info'}
         return { vars = { ((card.edition or {}).max_mult or self.config.max_mult) * 0.01, ((card.edition or {}).min_mult or self.config.min_mult) * 0.01 } }
     end,
     on_apply = function(card)
@@ -114,7 +115,7 @@ local misprint = {
             card.edition.mult = aij_precision_fix(card, value)
         end
         if context.after then
-            local string = tostring(card, card.edition.mult).."%"
+            local string = tostring(card.edition.mult*100).."%"
             return {
                 message = string,
             }

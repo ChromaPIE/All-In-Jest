@@ -1,6 +1,6 @@
 local mad_scientist = {
     object_type = "Joker",
-    order = 407,
+    order = 426,
     key = "mad_scientist",
     ignore = true,
     config = {
@@ -8,6 +8,7 @@ local mad_scientist = {
             
         }
     },
+    attributes = {},
     rarity = 1,
     pos = { x = 17, y = 14 },
     atlas = 'joker_atlas',

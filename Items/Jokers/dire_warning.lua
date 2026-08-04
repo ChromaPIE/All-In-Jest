@@ -1,6 +1,6 @@
 local dire_warning = {
     object_type = "Joker",
-    order = 409,
+    order = 428,
     key = "dire_warning",
     
     config = {
@@ -9,13 +9,14 @@ local dire_warning = {
             active = false
         }
     },
+    attributes = { 'xmult', 'hands' },
     rarity = 2,
     pos = { x = 16, y = 14 },
     atlas = 'joker_atlas',
     cost = 6,
     unlocked = true,
     discovered = false,
-    blueprint_compat = false,
+    blueprint_compat = true,
     eternal_compat = false,
 
     loc_vars = function(self, info_queue, card)

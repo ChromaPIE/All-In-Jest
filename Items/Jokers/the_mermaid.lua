@@ -1,11 +1,12 @@
 local the_mermaid = {
     object_type = "Joker",
-    order = 291,
+    order = 298,
     ignore = true,
     key = "the_mermaid",
     config = {
       
     },
+    attributes = {},
     rarity = 1,
     pos = { x = 14, y = 11},
     atlas = 'joker_atlas',

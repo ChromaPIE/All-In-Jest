@@ -1,6 +1,6 @@
 local bear = {
     object_type = "Joker",
-    order = 526,
+    order = 545,
     key = "bear",
    
     config = {
@@ -9,9 +9,11 @@ local bear = {
             dollars = 100
         }
     },
+    attributes = { 'mult' },
     rarity = 1,
     pos = { x = 11, y = 25 },
     atlas = 'joker_atlas',
+    lite = true,
     cost = 4,
     unlocked = true,
     discovered = false,
@@ -34,7 +36,7 @@ local bear = {
         if context.joker_main then
             local diff = math.max(0, card.ability.extra.dollars - G.GAME.dollars)
             local mult_to_add = math.floor(diff / 5)
-            if mult_to_add > 0 then
+            if mult_to_add > to_big(0) then
                 return {
                     mult = mult_to_add * card.ability.extra.mult
                 }

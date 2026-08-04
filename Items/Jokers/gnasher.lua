@@ -1,6 +1,6 @@
 local gnasher = {
     object_type = "Joker",
-    order = 166,
+    order = 169,
 
     key = "gnasher",
     config = {
@@ -8,6 +8,7 @@ local gnasher = {
             active = true,
         }
     },
+    attributes = { 'activated', 'consumable', 'generation' },
     rarity = 2,
     pos = { x = 10, y = 6 },
     atlas = 'joker_atlas',
@@ -36,22 +37,26 @@ local gnasher = {
         use_ability = function(self, card, args)
             args = args or {}
             SMODS.calculate_context({all_in_jest = {joker_ability_used = true, card = card, retriggered = args.retriggered, args = args}})
+
             local viable_options = {}
             for i, v in ipairs(G.consumeables.cards) do
                 local area = G.consumeables.cards[i].area
                 G.consumeables.cards[i].area = nil
-                if G.consumeables.cards[i]:can_use_consumeable() then
+                if G.consumeables.cards[i]:can_use_consumeable(nil, true) then
                     viable_options[#viable_options + 1] = i
                 end
                 G.consumeables.cards[i].area = area
             end
-            local copied_consumeable = copy_card(G.consumeables.cards[pseudorandom_element(viable_options, pseudoseed('gnasher_consumeable'))])
+            
+            if #viable_options > 0 then
+                local copied_consumeable = copy_card(G.consumeables.cards[pseudorandom_element(viable_options, pseudoseed('gnasher_consumeable'))])
 
-            -- Without this will crash with Wheel of Fortune, Ectoplasm and Hex
-            copied_consumeable:update(0)
-            G.FUNCS.use_card({ config = { ref_table = copied_consumeable } })
+                -- Without this will crash with Wheel of Fortune, Ectoplasm and Hex
+                copied_consumeable:update(0)
+                G.FUNCS.use_card({ config = { ref_table = copied_consumeable } })
 
-            card.ability.extra.active = false
+                card.ability.extra.active = false
+            end
         end,
     },
 

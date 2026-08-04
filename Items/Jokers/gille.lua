@@ -1,12 +1,13 @@
 local gille = {
     object_type = "Joker",
-    order = 206,
+    order = 212,
     ignore = true,
 
     key = "gille",
     config = {
       
     },
+    attributes = {},
     rarity = 1,
     pos = { x = 20, y = 7},
     atlas = 'joker_atlas',

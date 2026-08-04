@@ -81,7 +81,7 @@ SMODS.DrawStep {
 
         --Astral Grades/Pins
         if ((self.ability and self.ability.set and self.ability.set == 'aij_astral') or (center and center.all_in_jest and center.all_in_jest.as_astral)) and not self.config.center.is_pin then
-          if G.all_in_jest and G.all_in_jest.astral_grades[self.ability.consumeable.grade] then
+          if G.all_in_jest and G.all_in_jest.astral_grades[self.ability.consumeable.grade] and self.area and not self.area.config.collection then
             G.all_in_jest.astral_grades[self.ability.consumeable.grade].role.draw_major = self
             G.all_in_jest.astral_grades[self.ability.consumeable.grade]:draw_shader('dissolve', nil, nil, nil, self.children.center)
           end
@@ -89,7 +89,20 @@ SMODS.DrawStep {
     end,
     conditions = { vortex = false, facing = 'front' },
 }
-
+SMODS.DrawStep {
+    key = 'pinned_sticker',
+    order = 41,
+    func = function(self, layer)
+        for k, v in pairs(SMODS.Stickers) do
+            if self.pinned and v.key == 'pinned' then
+                G.shared_stickers[v.key].role.draw_major = self
+                G.shared_stickers[v.key]:draw_shader('dissolve', nil, nil, nil, self.children.center)
+                G.shared_stickers[v.key]:draw_shader('voucher', nil, self.ARGS.send_to_shader, nil, self.children.center)
+            end
+        end
+    end,
+    conditions = { vortex = false, facing = 'front' },
+}
 SMODS.DrawStep({
     key = "aij_extra_floating_sprites",
     order = 61,

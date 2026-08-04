@@ -10,18 +10,18 @@ local golem = {
 	unlocked = true,
 	discovered = false,
 	order = 24,
-	config = { max_highlight = 2 },
+	config = { max_highlighted = 2 },
 	atlas = "consumable_atlas",
 	loc_vars = function(self, info_queue, card)
 		return {
 			vars = {
-				card.ability.max_highlight,
+				card.ability.max_highlighted,
 			},
 		}
 	end,
 	can_use = function(self, card, area, copier)
 		if
-			card.ability.max_highlight >= #G.hand.highlighted
+			card.ability.max_highlighted >= #G.hand.highlighted
 			and #G.hand.highlighted >= 1
 		then
 			for k, v in ipairs(G.hand.highlighted) do
@@ -71,7 +71,11 @@ local golem = {
 				delay = 0.1,
 				func = function()
 					local enhance = SMODS.poll_enhancement({guaranteed = true, options = cen_pool, key = 'golem'})
-					All_in_Jest.set_other_enhancement(G.hand.highlighted[i], enhance)
+					if G.hand.highlighted[i].config.center.key == "m_stone" then
+						All_in_Jest.set_other_enhancement(G.hand.highlighted[i], enhance)
+					else
+						G.hand.highlighted[i]:set_ability(G.P_CENTERS[enhance], nil, true)
+					end
 					return true
 				end,
 			}))
