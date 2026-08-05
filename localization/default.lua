@@ -7168,7 +7168,17 @@ return {
             j_aij_pinup_poster = {
                 name = "Pin-Up Poster",
                 text = {
-                    ''
+                    {
+                        'This Joker is always',
+                        '{C:attention}pinned{} to the {C:attention}left',
+                        'of your Jokers'
+                    },
+                    {
+                        'Gains {X:mult,C:white}X#1#{} Mult per',
+                        '{C:red}Hearts{} suit card in',
+                        'your {C:attention}remaining deck',
+                        '{C:inactive}(Currently {X:mult,C:white}X#2#{} {C:inactive}Mult){}',
+                    }
                 }
             },            
             j_aij_the_judge = {
@@ -7456,7 +7466,17 @@ return {
             j_aij_train_conductor = {
                 name = "Train Conductor",
                 text = {
-                    ''
+                    {
+                        '{C:mult}+Mult{} Jokers instead give',
+                        '{C:mult}XMult{} equal to {C:attention}#1#%{} of',
+                        'their original values',
+                        '{C:inactive}(Minimum {X:mult,C:white}X1.2{C:inactive} Mult){}'
+                    },
+                    {
+                        '{C:mult}XMult{} Jokers instead give',
+                        '{C:mult}+Mult{} equal to {C:attention}#2#%{} of',
+                        'their original values'
+                    },
                 }
             },            
             j_aij_bookmaker = {
